@@ -1,26 +1,37 @@
 import { Request, Response } from 'express';
 import {
+	criarAgendamento,
 	listarAgendamentos,
 	removerAgendamentosAntigos,
 } from "../services/agendamentoService";
 import { parseISO } from "date-fns";
 
-export const criarNovoAgendamento = (req: Request, res: Response) => {};
+export const criarNovoAgendamento = (req: Request, res: Response) => {
+	const agendamento = req.body;
 
-export const atualizarStatusAgendamento = (req: Request, res: Response) => {};
+	console.log("agendamento: ", agendamento);
 
-export const listarTodosAgendamentos = (req, res) => {
+	try {
+		const novoAgendamento = criarAgendamento(agendamento);
+		res.status(201).json(novoAgendamento);
+	} catch (error) {
+		res.status(400).json({ error: (error as Error).message });
+	}
+};
+
+export const atualizarStatusAgendamento = (req: Request, res: Response) => { };
+
+export const listarTodosAgendamentos = (req: Request, res: Response) => {
 	var d = req.query.data;
-	var s = req.query.status;
-	var m = req.query.motoristaCpf;
+	var s = req.query.status as string | undefined;
+	var m = req.query.motoristaCpf as string | undefined;
 
 	let df: Date | undefined = undefined;
 	if (d) df = parseISO(d as string);
 
-	const a = listarAgendamentos(df, s, m);
-	res.status(200).json(a);
+	const agendamentos = listarAgendamentos(df, s, m);
+	res.status(200).json(agendamentos);
 };
-
 export const deletarAgendamentosAntigos = (req: Request, res: Response) => {
 	removerAgendamentosAntigos();
 	res.status(204).send("Agendamentos com mais de 3 dias foram removidos");
