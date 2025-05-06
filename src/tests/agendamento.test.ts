@@ -3,6 +3,7 @@ import {
 	alterarStatus,
 	listarAgendamentos,
 	removerAgendamentosAntigos,
+	removerTodosAgendamentos,
 } from "../services/agendamentoService";
 import { Agendamento } from "../models/agendamento";
 import { addDays } from "date-fns";
@@ -20,6 +21,10 @@ describe("Agendamento Service", () => {
 			dataHora: new Date("2024-09-15T10:00:00Z"),
 			status: "pendente",
 		};
+	});
+
+	afterEach(() => {
+		removerTodosAgendamentos();
 	});
 
 	it("Deve criar um novo agendamento", () => {
@@ -83,7 +88,7 @@ describe("Agendamento Service - Filtros", () => {
 			placaCaminhao: "ABC-1234",
 			numeroContrato: "CT123",
 			dataHora: new Date("2024-09-15T10:00:00Z"),
-			status: "pendente",
+			status: "concluido",
 		};
 
 		agendamento2 = {
@@ -93,7 +98,7 @@ describe("Agendamento Service - Filtros", () => {
 			placaCaminhao: "XYZ-5678",
 			numeroContrato: "CT456",
 			dataHora: new Date("2024-09-16T11:00:00Z"),
-			status: "concluido",
+			status: "atrasado",
 		};
 
 		agendamento3 = {
@@ -103,12 +108,16 @@ describe("Agendamento Service - Filtros", () => {
 			placaCaminhao: "ABC-1234",
 			numeroContrato: "CT789",
 			dataHora: new Date("2024-09-17T12:00:00Z"),
-			status: "atrasado",
+			status: "pendente",
 		};
 
 		criarAgendamento(agendamento1);
 		criarAgendamento(agendamento2);
 		criarAgendamento(agendamento3);
+	});
+
+	afterEach(() => {
+		removerTodosAgendamentos();
 	});
 
 	it("Deve listar todos os agendamentos sem filtro", () => {
@@ -117,7 +126,7 @@ describe("Agendamento Service - Filtros", () => {
 	});
 
 	it("Deve filtrar agendamentos por dia específico", () => {
-		const agendamentos = listarAgendamentos(new Date("2024-09-15"));
+		const agendamentos = listarAgendamentos(new Date("2024-09-15T03:00:00Z"));
 		expect(agendamentos.length).toBe(1);
 		expect(agendamentos[0].id).toBe("1");
 	});
@@ -145,7 +154,7 @@ describe("Agendamento Service - Filtros", () => {
 
 	it("Deve filtrar agendamentos por dia, status e motorista ao mesmo tempo", () => {
 		const agendamentos = listarAgendamentos(
-			new Date("2024-09-17"),
+			new Date("2024-09-17T03:00:00Z"),
 			"atrasado",
 			"12345678900"
 		);
@@ -193,6 +202,10 @@ describe("Agendamento Service - Remover Agendamentos Antigos", () => {
 		criarAgendamento(agendamento1);
 		criarAgendamento(agendamento2);
 		criarAgendamento(agendamento3);
+	});
+
+	afterEach(() => {
+		removerTodosAgendamentos();
 	});
 
 	it("Deve remover agendamentos com mais de 3 dias", () => {

@@ -10,8 +10,6 @@ import { parseISO } from "date-fns";
 export const criarNovoAgendamento = (req: Request, res: Response) => {
 	const agendamento = req.body;
 
-	console.log("agendamento: ", agendamento);
-
 	try {
 		const novoAgendamento = criarAgendamento(agendamento);
 		res.status(201).json(novoAgendamento);

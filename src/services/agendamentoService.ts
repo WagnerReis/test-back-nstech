@@ -19,8 +19,13 @@ export const criarAgendamento = (novoAgendamento: Agendamento): Agendamento => {
 		throw new Error("Conflito de agendamento");
 	}
 
-	novoAgendamento.id = uuidv4()
-	novoAgendamento.status = StatusEnum.PENDENTE;
+	if (!novoAgendamento.id) {
+		novoAgendamento.id = uuidv4()
+	}
+
+	if (!novoAgendamento.status) {
+		novoAgendamento.status = StatusEnum.PENDENTE;
+	}
 	agendamentos.push(novoAgendamento);
 
 	return novoAgendamento
@@ -37,7 +42,11 @@ export const alterarStatus = (id: string, novoStatus: Status): Agendamento => {
 	return agendamento
 };
 
-export const listarAgendamentos = (d: Date | undefined, s: string | undefined, m: string | undefined): Agendamento[] => {
+export const listarAgendamentos = (
+	d: Date | undefined = undefined,
+	s: string | undefined = undefined,
+	m: string | undefined = undefined
+): Agendamento[] => {
 	return agendamentos.filter((a) => {
 		var corresponde = true;
 
@@ -73,12 +82,16 @@ export const removerAgendamentosAntigos = (): void => {
 	agendamentos = temp;
 };
 
+// apenas para os testes
+export const removerTodosAgendamentos = () => {
+	agendamentos = [];
+}
 
-const checaAgendamentoNaUltimaHora = (agendamento: Agendamento): boolean => {
+export const checaAgendamentoNaUltimaHora = (agendamento: Agendamento): boolean => {
 	const lastHourDate = new Date(subHours(new Date(agendamento.dataHora), 1));
 
 	try {
-		const NumeroAgendamentosNaUltimaHora = agendamentos.filter((agendamento) => isSameDay(agendamento.dataHora, lastHourDate)).length;
+		const NumeroAgendamentosNaUltimaHora = agendamentos.filter((agendamento) => agendamento.dataHora >= lastHourDate).length;
 
 		return NumeroAgendamentosNaUltimaHora > 0;
 	} catch (error) {
@@ -87,9 +100,10 @@ const checaAgendamentoNaUltimaHora = (agendamento: Agendamento): boolean => {
 	}
 }
 
-const checaMotoristaPedenteOuAtrasado = (cpf: string): boolean => {
+export const checaMotoristaPedenteOuAtrasado = (cpf: string): boolean => {
 	try {
-		const agendamentosFiltrados = agendamentos.filter((agendamento) => ["pendente", "atrasado"].includes(agendamento.status));
+		const agendamentosFiltrados = agendamentos
+			.filter((ag) => ["pendente", "atrasado"].includes(ag.status) && ag.motoristaCpf === cpf);
 
 		return agendamentosFiltrados.length > 0;
 	} catch (error) {
