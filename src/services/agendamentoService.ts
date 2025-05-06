@@ -1,5 +1,5 @@
-import { Agendamento } from '../models/agendamento';
-import { isSameDay } from "date-fns";
+import { Agendamento, Status } from '../models/agendamento';
+import { differenceInDays, isSameDay } from "date-fns";
 
 var agendamentos: Agendamento[] = [];
 
@@ -11,7 +11,7 @@ export const alterarStatus = (id, novoStatus: Status): Agendamento => {
 	// TODO
 };
 
-export const listarAgendamentos = (d, s, m): Agendamento[] => {
+export const listarAgendamentos = (d: Date, s: Status, m: string): Agendamento[] => {
 	return agendamentos.filter((a) => {
 		var corresponde = true;
 
@@ -44,5 +44,5 @@ export const removerAgendamentosAntigos = (): void => {
 		}
 	});
 
-	agendamentos = temp;	
+	agendamentos = temp;
 };
