@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get("/agendamentos", listarTodosAgendamentos);
 router.post("/agendamentos", criarNovoAgendamento);
-router.post("/agendamentos/:id/status", atualizarStatusAgendamento);
+router.patch("/agendamentos/:id/status", atualizarStatusAgendamento);
 router.post("/agendamentos/antigos", deletarAgendamentosAntigos);
 
 export default router;

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import {
+	alterarStatus,
 	criarAgendamento,
 	listarAgendamentos,
 	removerAgendamentosAntigos,
@@ -19,7 +20,17 @@ export const criarNovoAgendamento = (req: Request, res: Response) => {
 	}
 };
 
-export const atualizarStatusAgendamento = (req: Request, res: Response) => { };
+export const atualizarStatusAgendamento = (req: Request, res: Response) => {
+	const { id } = req.params;
+	const { status } = req.body;
+
+	try {
+		const agendamento = alterarStatus(id, status);
+		res.status(200).json(agendamento);
+	} catch (error) {
+		res.status(400).json({ error: (error as Error).message });
+	}
+};
 
 export const listarTodosAgendamentos = (req: Request, res: Response) => {
 	var d = req.query.data;

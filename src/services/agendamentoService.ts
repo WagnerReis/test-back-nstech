@@ -1,5 +1,13 @@
 import { Agendamento, Status } from '../models/agendamento';
 import { differenceInDays, isSameDay, subHours } from "date-fns";
+import { v4 as uuidv4 } from 'uuid';
+
+export enum StatusEnum {
+	PENDENTE = "pendente",
+	CONCLUIDO = "concluido",
+	ATRASADO = "atrasado",
+	CANCELADO = "cancelado"
+};
 
 var agendamentos: Agendamento[] = [];
 
@@ -11,14 +19,22 @@ export const criarAgendamento = (novoAgendamento: Agendamento): Agendamento => {
 		throw new Error("Conflito de agendamento");
 	}
 
-	novoAgendamento.status = "pendente";
+	novoAgendamento.id = uuidv4()
+	novoAgendamento.status = StatusEnum.PENDENTE;
 	agendamentos.push(novoAgendamento);
 
 	return novoAgendamento
 };
 
 export const alterarStatus = (id: string, novoStatus: Status): Agendamento => {
-	// TODO
+	checaSePodeAtualizarStatus(id, novoStatus);
+
+	const index = agendamentos.findIndex(ag => ag.id === id)
+	const agendamento = agendamentos[index]
+
+	agendamento.status = novoStatus
+
+	return agendamento
 };
 
 export const listarAgendamentos = (d: Date | undefined, s: string | undefined, m: string | undefined): Agendamento[] => {
@@ -76,6 +92,30 @@ const checaMotoristaPedenteOuAtrasado = (cpf: string): boolean => {
 		const agendamentosFiltrados = agendamentos.filter((agendamento) => ["pendente", "atrasado"].includes(agendamento.status));
 
 		return agendamentosFiltrados.length > 0;
+	} catch (error) {
+		console.error(error)
+		throw error
+	}
+}
+
+
+const checaSePodeAtualizarStatus = (id: string, novoStatus: Status): boolean => {
+	try {
+		const agendamento = agendamentos.find((agendamento) => agendamento.id === id)
+
+		if (!agendamento) {
+			throw new Error("Agendamento não encontrado");
+		}
+
+		if (agendamento.status === StatusEnum.CONCLUIDO && novoStatus === StatusEnum.CANCELADO) {
+			throw new Error("Não é possível cancelar um agendamento já concluído");
+		}
+
+		if (agendamento.status === StatusEnum.CANCELADO) {
+			throw new Error("Não é possível alterar um agendamento cancelado");
+		}
+
+		return true;
 	} catch (error) {
 		console.error(error)
 		throw error
